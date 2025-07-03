@@ -180,7 +180,8 @@ c99175974b6e192936d97224638a34f8
 05c043f7120f53af8271be95598ac44e
 ```
 
-```Hexada@hexada ~/pentest-env/vrm/artificial.htb$ hashcat -m 0 -a 0 hash.txt /home/Hexada/pentest-env/pentesting-wordlists/SecLists/Passwords/Leaked-Databases/rockyou.txt -o password.txt
+```
+Hexada@hexada ~/pentest-env/vrm/artificial.htb$ hashcat -m 0 -a 0 hash.txt /home/Hexada/pentest-env/pentesting-wordlists/SecLists/Passwords/Leaked-Databases/rockyou.txt -o password.txt
 hashcat (v6.2.6) starting
 
 Watchdog: Hardware monitoring interface not found on your system.
